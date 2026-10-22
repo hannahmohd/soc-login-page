@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentinel SOC - Analyst sign in</title>
+
+  <link rel="stylesheet" href="https://pyscript.net/releases/2026.3.1/core.css">
+  <script type="module" src="https://pyscript.net/releases/2026.3.1/core.js"></script>
+
+  <style>
+    :root {
+      --bg: #0a0f1a;
+      --panel: #101827;
+      --raised: #17223a;
+      --line: #263450;
+      --text: #e5ecf6;
+      --muted: #8fa0ba;
+      --accent: #38bdf8;
+      --accent-dark: #0ea5e9;
+      --ok: #4ade80;
+      --err: #fb7185;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .side {
+      padding: 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: var(--panel);
+      border-right: 1px solid var(--line);
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 20px; }
+
+    .brand svg { width: 32px; height: 32px; }
+
+    .side h1 {
+      margin: 0 0 16px;
+      font-size: clamp(36px, 4.6vw, 56px);
+      line-height: 1.08;
+      letter-spacing: -1px;
+    }
+
+    .side .lead { margin: 0; max-width: 38ch; color: var(--muted); font-size: 18px; line-height: 1.5; }
+
+    .policy { margin: 0; padding: 0; list-style: none; color: var(--muted); font-size: 14px; line-height: 2; }
+    .policy li::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 10px; border-radius: 50%; background: var(--accent); }
+
+    .main { display: flex; align-items: center; justify-content: center; padding: 32px; }
+    .box { width: 100%; max-width: 380px; }
+
+    h2 { margin: 0 0 6px; font-size: 26px; }
+    .intro { margin: 0 0 26px; color: var(--muted); }
+
+    .field { margin-bottom: 18px; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
+
+    .input-row { position: relative; }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 16px;
+      color: var(--text);
+      background: var(--raised);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    input::placeholder { color: #5d6e8a; }
+
+    input:focus-visible, button:focus-visible {
+      outline: 3px solid rgba(56, 189, 248, 0.45);
+      outline-offset: 1px;
+      border-color: var(--accent);
+    }
+
+    #password { padding-right: 76px; }
+
+    #code { letter-spacing: 8px; font-size: 22px; text-align: center; }
+
+    .toggle {
+      position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+      padding: 6px 10px; font-size: 14px; font-weight: 600;
+      color: var(--muted); background: transparent; border: none; border-radius: 4px; cursor: pointer;
+    }
+    .toggle:hover { color: var(--text); background: var(--line); }
+
+    .primary {
+      width: 100%; padding: 13px; font-size: 16px; font-weight: 700;
+      color: #04121c; background: var(--accent); border: none; border-radius: 6px; cursor: pointer;
+    }
+    .primary:hover:not(:disabled) { background: var(--accent-dark); }
+    .primary:disabled { color: #6b7a92; background: var(--line); cursor: not-allowed; }
+
+    .link {
+      margin-top: 12px; width: 100%; padding: 10px; font-size: 14px; font-weight: 600;
+      color: var(--muted); background: transparent; border: none; cursor: pointer;
+    }
+    .link:hover { color: var(--text); }
+
+    #message { min-height: 24px; margin: 16px 0 0; font-weight: 600; }
+    #message.error { color: var(--err); }
+    #message.success { color: var(--ok); }
+    #message.info { color: var(--muted); }
+
+    .demo {
+      margin-top: 24px; padding: 12px 14px; border-left: 3px solid var(--accent);
+      background: var(--panel); color: var(--muted); font-size: 14px; line-height: 1.6;
+    }
+
+    .hidden { display: none; }
+
+    @media (max-width: 760px) {
+      body { grid-template-columns: 1fr; }
+      .side { padding: 28px 24px; gap: 24px; border-right: none; border-bottom: 1px solid var(--line); }
+      .side .lead { font-size: 16px; }
+    }
+  </style>
+</head>
+
+<body>
+  <section class="side">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 2 4 7v8c0 7.5 5 13.2 12 15 7-1.800 12-7.500 12-15V7L16 2Z" fill="none" stroke="#38bdf8" stroke-width="2"/>
+        <path d="m10.500 16 4 4 7-8" fill="none" stroke="#38bdf8" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Sentinel SOC
+    </div>
+
+    <div>
+      <h1>Security operations console</h1>
+      <p class="lead">Analyst access only. Sign in to review alerts and open incidents.</p>
+    </div>
+
+    <ul class="policy">
+      <li>Two-step verification is required</li>
+      <li>3 failed attempts lock the form for 30 seconds</li>
+      <li>Sign-in attempts are logged</li>
+    </ul>
+  </section>
+
+  <main class="main">
+    <div class="box">
+      <div id="step-creds">
+        <h2>Analyst sign in</h2>
+        <p class="intro">Enter your analyst ID and password.</p>
+
+        <div class="field">
+          <label for="username">Analyst ID</label>
+          <input id="username" type="text" autocomplete="username" placeholder="Enter analyst ID" py-keydown="on_key">
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input-row">
+            <input id="password" type="password" autocomplete="current-password" placeholder="Enter password" py-keydown="on_key">
+            <button id="toggle-btn" class="toggle" type="button" py-click="toggle_password">Show</button>
+          </div>
+        </div>
+
+        <button id="login-btn" class="primary" type="button" py-click="login">Continue</button>
+      </div>
+
+      <div id="step-mfa" class="hidden">
+        <h2>Verify it's you</h2>
+        <p class="intro">Enter the 6-digit code from your authenticator app.</p>
+
+        <div class="field">
+          <label for="code">Verification code</label>
+          <input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" py-keydown="on_key">
+        </div>
+
+        <button id="verify-btn" class="primary" type="button" py-click="verify">Verify and sign in</button>
+        <button class="link" type="button" py-click="go_back">Use a different account</button>
+      </div>
+
+      <p id="message" role="status" aria-live="polite"></p>
+
+      <div class="demo">
+        <strong>Demo login</strong><br>
+        Analyst ID: analyst01<br>
+        Password: Sentinel#2026<br>
+        Code: 123456
+      </div>
+    </div>
+  </main>
+
+  <script type="py">
+    import asyncio
+    from pyscript import document
+
+    CORRECT_USERNAME = "analyst01"
+    CORRECT_PASSWORD = "Sentinel#2026"
+    CORRECT_CODE = "123456"
+    MAX_ATTEMPTS = 3
+    LOCK_SECONDS = 30
+
+    attempts = 0
+    locked = False
+    step = "creds"
+
+
+    def el(element_id):
+        return document.querySelector("#" + element_id)
+
+
+    def show(text, kind):
+        message = el("message")
+        message.innerText = text
+        message.className = kind
+
+
+    def show_step(name):
+        global step
+        step = name
+        el("step-creds").classList.toggle("hidden", name != "creds")
+        el("step-mfa").classList.toggle("hidden", name != "mfa")
+
+
+    def set_buttons(disabled):
+        el("login-btn").disabled = disabled
+        el("verify-btn").disabled = disabled
+
+
+    def toggle_password(event):
+        field = el("password")
+        button = el("toggle-btn")
+        if field.type == "password":
+            field.type = "text"
+            button.innerText = "Hide"
+        else:
+            field.type = "password"
+            button.innerText = "Show"
+
+
+    def go_back(event):
+        el("code").value = ""
+        show_step("creds")
+        show("", "info")
+        el("username").focus()
+
+
+    async def lock_form():
+        global locked, attempts
+        locked = True
+        set_buttons(True)
+
+        for seconds in range(LOCK_SECONDS, 0, -1):
+            show(f"Too many failed attempts. Try again in {seconds}s.", "error")
+            await asyncio.sleep(1)
+
+        locked = False
+        attempts = 0
+        set_buttons(False)
+        show_step("creds")
+        show("You can try again now.", "info")
+
+
+    async def register_failure(text):
+        global attempts
+        attempts += 1
+        remaining = MAX_ATTEMPTS - attempts
+        if remaining <= 0:
+            await lock_form()
+        else:
+            show(f"{text} {remaining} attempt(s) left.", "error")
+
+
+    async def login(event):
+        if locked:
+            return
+
+        username = el("username").value.strip()
+        password = el("password").value
+
+        if username == "":
+            show("Enter your analyst ID.", "error")
+        elif password == "":
+            show("Enter your password.", "error")
+        elif username == CORRECT_USERNAME and password == CORRECT_PASSWORD:
+            show("Password accepted. Enter your verification code.", "info")
+            show_step("mfa")
+            el("code").focus()
+        else:
+            await register_failure("Analyst ID or password is incorrect.")
+
+
+    async def verify(event):
+        if locked:
+            return
+
+        code = el("code").value.strip()
+
+        if code == "":
+            show("Enter your 6-digit code.", "error")
+        elif code == CORRECT_CODE:
+            show("Access granted. Starting your session.", "success")
+            set_buttons(True)
+        else:
+            await register_failure("Verification code is incorrect.")
+
+
+    async def on_key(event):
+        if event.key != "Enter":
+            return
+        if step == "creds":
+            await login(event)
+        else:
+            await verify(event)
+  </script>
+</body>
+</html>
